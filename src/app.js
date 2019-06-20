@@ -48,7 +48,6 @@ const game_board = (() => {
         ]
     ];
 
-    var turn = "";
     var calculate_winner = () => {
         for (let i = 0; i < positions.length; i++) {
             let row = positions[i];
@@ -69,7 +68,13 @@ const game_board = (() => {
         }
     };
 
-    var update_game_board = (player, position) => {
+    var player = "player_1";
+
+    var change_player_turn = () => {
+        player = player === "player_1" ? "player_2" : "player_1";
+    };
+
+    var update_game_board = position => {
         positions = positions.map(function(row) {
             return row.map(function(position_object) {
                 if (
@@ -84,18 +89,49 @@ const game_board = (() => {
         });
 
         calculate_winner();
+        change_player_turn();
     };
-    return { update_game_board, turn };
+
+    return { update_game_board, turn: player };
+})();
+
+var game_board_ui = (function() {
+    var init = () => {
+        var position_els = [...document.getElementsByClassName("position")];
+
+        var submit_turn = evt => {
+            var player_position = this.getAttribute("data-position");
+            game_board.update_game_board(player_position);
+
+            this.innerHTML = game_board.turn === "player_1" ? "X" : "O";
+
+            this.removeEventListener("click", submit_turn);
+        };
+
+        position_els.forEach(function(position) {
+            position.addEventListener("click", submit_turn);
+        });
+    };
+
+    return { init };
 })();
 
 // Use factory function for player
-const Player = (player, position) => {
-    return {};
-};
+// const Player = player => {
+//     const submit = position => {
+//         game_board.update_game_board(player, position);
+//     };
+//     return {
+//         submit,
+//         name
+//     };
+// };
 
 // const jon = Player("jon");
 // const jane = Player("jane");
+// jon.submit(0);
+// jane.submit(1);
 
-// game_board.update_game_board("brandon", 0);
-// game_board.update_game_board("brandon", 1);
-// game_board.update_game_board("brandon", 2);
+game_board.update_game_board(0);
+game_board.update_game_board(1);
+game_board.update_game_board(2);
