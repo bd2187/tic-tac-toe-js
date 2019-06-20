@@ -43,7 +43,7 @@ const game_board = (() => {
         ],
         [
             { position: 2, player: "" },
-            { position: 5, player: "" },
+            { position: 4, player: "" },
             { position: 6, player: "" }
         ]
     ];
@@ -52,6 +52,7 @@ const game_board = (() => {
         for (let i = 0; i < positions.length; i++) {
             let row = positions[i];
             let winner = false;
+
             if (
                 row[0].player !== "" &&
                 row[0].player === row[1].player &&
@@ -68,13 +69,15 @@ const game_board = (() => {
         }
     };
 
-    var player = "player_1";
+    var player = "player_2";
 
     var change_player_turn = () => {
         player = player === "player_1" ? "player_2" : "player_1";
     };
 
     var update_game_board = position => {
+        change_player_turn();
+
         positions = positions.map(function(row) {
             return row.map(function(position_object) {
                 if (
@@ -89,21 +92,24 @@ const game_board = (() => {
         });
 
         calculate_winner();
-        change_player_turn();
+        console.warn(positions);
+        return player;
     };
 
-    return { update_game_board, turn: player };
+    return { update_game_board };
 })();
 
 var game_board_ui = (function() {
     var init = () => {
-        var position_els = [...document.getElementsByClassName("position")];
+        var position_els = [
+            ...document.getElementsByClassName("game-board__position")
+        ];
 
-        var submit_turn = evt => {
-            var player_position = this.getAttribute("data-position");
-            game_board.update_game_board(player_position);
+        var submit_turn = function(evt) {
+            var player_position = parseInt(this.getAttribute("data-position"));
+            var player = game_board.update_game_board(player_position);
 
-            this.innerHTML = game_board.turn === "player_1" ? "X" : "O";
+            this.innerHTML = player === "player_1" ? "X" : "O";
 
             this.removeEventListener("click", submit_turn);
         };
@@ -116,22 +122,4 @@ var game_board_ui = (function() {
     return { init };
 })();
 
-// Use factory function for player
-// const Player = player => {
-//     const submit = position => {
-//         game_board.update_game_board(player, position);
-//     };
-//     return {
-//         submit,
-//         name
-//     };
-// };
-
-// const jon = Player("jon");
-// const jane = Player("jane");
-// jon.submit(0);
-// jane.submit(1);
-
-game_board.update_game_board(0);
-game_board.update_game_board(1);
-game_board.update_game_board(2);
+game_board_ui.init();
