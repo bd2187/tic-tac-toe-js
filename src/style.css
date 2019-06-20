@@ -1,0 +1,21 @@
+* {
+    box-sizing: border-box;
+}
+
+.game-board {
+    width: 600px;
+    height: 600px;
+    background: purple;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.game-board__position {
+    width: 25%;
+    height: 25%;
+    margin: 0 4.16%;
+    border: 1px solid black;
+    background: green;
+}
