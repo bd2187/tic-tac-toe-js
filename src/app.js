@@ -48,7 +48,7 @@ const game_board = (() => {
         ]
     ];
 
-    var calculate_winner = () => {
+    var check_winner = () => {
         for (let i = 0; i < positions.length; i++) {
             let row = positions[i];
             let winner = false;
@@ -64,9 +64,11 @@ const game_board = (() => {
 
             if (winner) {
                 console.log("winner");
-                return;
+                return true;
             }
         }
+
+        return false;
     };
 
     var player = "player_2";
@@ -91,12 +93,27 @@ const game_board = (() => {
             });
         });
 
-        calculate_winner();
-        console.warn(positions);
-        return player;
+        var did_player_win = check_winner();
+
+        return {
+            player,
+            did_player_win
+        };
     };
 
-    return { update_game_board };
+    var start_new_game = function() {
+        player = "player_2";
+
+        positions = positions.map(function(row) {
+            return row.map(function(position_object) {
+                position_object.player = "";
+                return position_object;
+            });
+        });
+        console.warn(positions);
+    };
+
+    return { update_game_board, start_new_game };
 })();
 
 var game_board_ui = (function() {
@@ -107,15 +124,43 @@ var game_board_ui = (function() {
 
         var submit_turn = function(evt) {
             var player_position = parseInt(this.getAttribute("data-position"));
-            var player = game_board.update_game_board(player_position);
+            var { player, did_player_win } = game_board.update_game_board(
+                player_position
+            );
 
-            this.innerHTML = player === "player_1" ? "X" : "O";
+            this.innerHTML =
+                player === "player_1"
+                    ? '<i class="fas fa-times"></i>'
+                    : '<i class="far fa-circle"></i>';
+
+            if (did_player_win) end_game();
 
             this.removeEventListener("click", submit_turn);
         };
 
+        var end_game = function() {
+            position_els.forEach(function(position) {
+                position.removeEventListener("click", submit_turn);
+            });
+
+            // Update UI to show winner
+        };
+
         position_els.forEach(function(position) {
             position.addEventListener("click", submit_turn);
+        });
+
+        var new_game_btn_el = document.getElementsByClassName(
+            "new-game-btn"
+        )[0];
+
+        new_game_btn_el.addEventListener("click", function() {
+            game_board.start_new_game();
+            position_els.forEach(function(position) {
+                position.innerHTML = "";
+            });
+
+            // todo: re-enable event listener
         });
     };
 
