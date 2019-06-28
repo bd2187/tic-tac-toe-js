@@ -160,7 +160,10 @@ var game_board_ui = (function() {
                 position.innerHTML = "";
             });
 
-            // todo: re-enable event listener
+            end_game();
+            position_els.forEach(function(position) {
+                position.addEventListener("click", submit_turn);
+            });
         });
     };
 
